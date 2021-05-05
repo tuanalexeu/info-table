@@ -1,4 +1,4 @@
-package com.alekseytyan;
+package com.alekseytyan.infotable;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;

@@ -1,4 +1,4 @@
-package com.alekseytyan;
+package com.alekseytyan.infotable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.push.Push;

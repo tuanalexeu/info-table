@@ -1,4 +1,4 @@
-package com.alekseytyan;
+package com.alekseytyan.infotable;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
