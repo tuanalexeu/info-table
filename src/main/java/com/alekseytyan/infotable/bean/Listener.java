@@ -1,29 +1,22 @@
 package com.alekseytyan.infotable.bean;
 
-
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
+import com.alekseytyan.infotable.reader.PropertyReader;
+import com.google.cloud.pubsub.v1.AckReplyConsumer;
+import com.google.cloud.pubsub.v1.MessageReceiver;
+import com.google.cloud.pubsub.v1.Subscriber;
+import com.google.pubsub.v1.ProjectSubscriptionName;
+import com.google.pubsub.v1.PubsubMessage;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.DependsOn;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.faces.push.Push;
-import javax.faces.push.PushContext;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @WebListener
@@ -37,41 +30,49 @@ public class Listener implements ServletContextListener {
    @SneakyThrows
    @Override
    public void contextInitialized(ServletContextEvent event) {
-      ExecutorService service = Executors.newCachedThreadPool();
 
       logger.info("Startup");
-
-      ConnectionFactory factory = new ConnectionFactory();
-      factory.setHost("localhost");
-      Connection connection = factory.newConnection();
-      Channel channel = connection.createChannel();
-
-      channel.queueDeclare("Logiweb", false, false, false, null);
       logger.info(" [*] Waiting for messages. ");
 
+      String projectId = PropertyReader.getPropValue("PROJECT_ID_ENV");
+      String subscriptionId = PropertyReader.getPropValue("SUBSCRIPTION_ID");
 
-      service.submit(() -> {
+      logger.info("Project id: " + projectId);
+      logger.info("Subscription id: " + subscriptionId);
+
+      new Thread(() -> {
+
+         ProjectSubscriptionName subscriptionName =
+                 ProjectSubscriptionName.of(projectId, subscriptionId);
 
          while (true) {
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-               String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
 
-               logger.info(" [x] Received '" + message + "'");
-               logger.info("Push bean: " + pushBean.toString());
+            // Instantiate an asynchronous message receiver.
+            MessageReceiver receiver =
+                    (PubsubMessage message, AckReplyConsumer consumer) -> {
+                       // Handle incoming message, then ack the received message.
+                       logger.info("Id: " + message.getMessageId());
+                       logger.info("Data: " + message.getData().toStringUtf8());
 
-               pushBean.sendMessage(message);
+                       consumer.ack();
 
-               logger.info("Message [" + message + "] has been pushed to JSF page");
+                       pushBean.sendMessage("update");
+                    };
 
-
-            };
-
+            Subscriber subscriber = null;
             try {
-               channel.basicConsume("Logiweb", true, deliverCallback, consumerTag -> { });
-            } catch (IOException e) {
-               e.printStackTrace();
+               subscriber = Subscriber.newBuilder(subscriptionName, receiver).build();
+               // Start the subscriber.
+               subscriber.startAsync().awaitRunning();
+               System.out.printf("Listening for messages on %s:\n", subscriptionName);
+               // Allow the subscriber to run for 30s unless an unrecoverable error occurs.
+               subscriber.awaitTerminated(30, TimeUnit.SECONDS);
+            } catch (TimeoutException timeoutException) {
+               // Shut down the subscriber after 30s. Stop receiving messages.
+               subscriber.stopAsync();
             }
          }
-      });
+      }).start();
+
    }
 }
