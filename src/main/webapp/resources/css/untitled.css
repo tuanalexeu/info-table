@@ -19,27 +19,8 @@
   background-color: #fff;
   background-clip: border-box;
   max-width: 800px;
-  margin: 10px;
-  border: 1px solid #e3e6f0;
+  margin: auto;
+  border: 1px solid #fff;
   border-radius: .35rem;
-}
-
-#nav-div {
-  max-width: 200px;
-  margin: initial;
-}
-
-.wrapper {
-  min-height: 100%;
-  margin-bottom: -50px;
-}
-
-.push {
-  height: 50px;
-}
-
-#dashboard_container {
-  width: fit-content;
-  height: fit-content;
 }
 
