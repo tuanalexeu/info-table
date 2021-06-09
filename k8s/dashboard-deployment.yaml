@@ -8,23 +8,23 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-    app: info-table
-  strategy:
-  type: Recreate
-    template:
-  metadata:
-    labels:
       app: info-table
-  spec:
-    containers:
-      - name: info-table
-        image: tuanalexeu/info-table:final-task2
-        ports:
-          - name: web
-          containerPort: 8080
-        resources:
-          requests:
-            memory: "512Mi"
-          limits:
-            memory: "1Gi"
-    restartPolicy: Always
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: info-table
+    spec:
+      containers:
+        - name: info-table
+          image: tuanalexeu/info-table:final-task4
+          ports:
+            - name: web
+              containerPort: 8080
+          resources:
+            requests:
+              memory: "512Mi"
+            limits:
+              memory: "1Gi"
+      restartPolicy: Always
