@@ -15,7 +15,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <sonar.projectKey>tuanalexeu_info-table</sonar.projectKey>
-        <sonar.organization>tuanalexeu</sonar.organization>
+        <sonar.organization>tuanalexeu-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
         <javaee.version>8.0</javaee.version>
