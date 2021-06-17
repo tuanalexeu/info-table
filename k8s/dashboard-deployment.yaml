@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: info-table
+  name: dashboard
   labels:
-    app: info-table
+    app: dashboard
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: info-table
+      app: dashboard
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: info-table
+        app: dashboard
     spec:
       containers:
         - name: info-table
-          image: tuanalexeu/info-table:final-task4
+          image: tuanalexeu/dashboard-service:production
           ports:
             - name: web
               containerPort: 8080
